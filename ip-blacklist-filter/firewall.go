@@ -9,7 +9,7 @@ func main()
 	blacklist = []string{"192.168.1.50", "10.0.0.99", "172.16.0.4"}
 	isBlocked = false 
 
-	fmt.Println("--- ALINA'S LIVE MULTI-IP FIREWALL ---")
+	fmt.Println("\t\t\tALINA'S LIVE MULTI-IP FIREWALL\t\t\t")
 	fmt.Print("Enter your IP Address to check network permission: ")
 	fmt.Scanln(&visitorIP)
 

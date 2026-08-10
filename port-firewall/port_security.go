@@ -6,7 +6,7 @@ func main()
 	var incomingPort int
 	dangerousPort = 22 
 
-	fmt.Println("--- ALINA'S LIVE PORT SECURITY SYSTEM ---")
+	fmt.Println("\t\t\t ALINA'S LIVE PORT SECURITY SYSTEM\t\t\t")
 	fmt.Print("Enter the port number you want to connect to: ")
 	fmt.Scanln(&incomingPort)
 
