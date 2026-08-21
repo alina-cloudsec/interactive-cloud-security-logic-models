@@ -10,9 +10,7 @@ a beginner. But every program here does something real when you run it.
 
 ## What is inside
 
-- **auth log scanner** > Reads a list of system logs. It finds lines
-  that show a failed password. This helps spot someone trying to break
-  in.
+- **auth log scanner** > Reads a list of system logs dynamically. It uses advanced rolling time-windows to flag suspicious IPs at 5 attempts and automatically enforces structural hard blocks at 7 attempts, saving historical incidents directly into an SQLite database with auto-cleanup automation.
 - **buffer size guard** > Checks if user input is too big before
   letting it in. This stops input from going past the limit it should
   have.
@@ -35,11 +33,7 @@ a beginner. But every program here does something real when you run it.
 Each program here stops a real kind of attack that hackers aactually
 use. Here is how each one connects:
 
-- **auth log scanner** > Hackers often try many different passwords
-  again and again on the same account. This is called a brute force
-  attack. My program reads the logs and finds every time a password
-  attempt failed, so this kind of attack does not go unnoticed.
-
+- **auth log scanner** > Hackers often execute brute-force attacks by guessing passwords rapidly. My program specifically analyzes these logs using sliding time-windows, evaluating if multiple failures happen within a 3-minute burst. This allows the system to intelligently differentiate between a real distributed attack and an honest user making a single mistyped mistake.
 - **buffer size guard** > Hackers sometimes send input that is much
   bigger than a program expects, on purpose. If the program does not
   check the size first, that extra data can spill into memory it
@@ -81,3 +75,8 @@ use. Here is how each one connects:
 
 I am currently building sandbox demos for these programs using Meshery
 Playground. I will upload them here over the next few days.
+
+---
+```bash
+> 📌 **Note:** Honestly, I didn't know that Go has such strict rules for curly brackets `{`. Coming from a C and C++ background, I am used to writing code in that format, so I didn't pay much attention to it at first and just wrote it that way. But when compiling, I got syntax errors, which led me to research and discover Go's strict styling rules. Over the next one or two days, I will be fixing the formatting across all my codes.
+
