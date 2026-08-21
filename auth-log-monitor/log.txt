@@ -1,33 +1,48 @@
-[2026-08-20 10:00:22] Keycloak - WARN: Unauthorized access attempt by user guest on endpoint /api/v1/admin/settings
-[2026-08-20 10:00:37] Keycloak - INFO: Session opened for user alina from IP 192.168.1.45
-[2026-08-20 10:01:12] Postgres - INFO: Active session cleanup complete, removed 14 expired tokens
-[2026-08-20 10:01:31] Keycloak - INFO: User raj successfully authenticated via OIDC provider
-[2026-08-20 10:01:50] Auth-Service - INFO: Token verification successful for user sam
-[2026-08-20 10:02:29] Keycloak - CRITICAL: Failed password for admin from IP 192.168.10.5
-[2026-08-20 10:03:08] Keycloak - WARN: Unauthorized access attempt by user guest on endpoint /api/v1/admin/settings
-[2026-08-20 10:03:14] Postgres - INFO: Database connection established successfully from application pool
-[2026-08-20 10:03:49] Auth-Service - INFO: Token verification successful for user sam
-[2026-08-20 10:04:13] Postgres - INFO: Database connection established successfully from application pool
-[2026-08-20 10:04:50] Keycloak - INFO: User raj successfully authenticated via OIDC provider
-[2026-08-20 10:05:18] Postgres - ERROR: Database error connection timeout during replication sweep
-[2026-08-20 10:05:43] Postgres - ERROR: Database error connection timeout during replication sweep
-[2026-08-20 10:06:08] Postgres - INFO: Database connection established successfully from application pool
-[2026-08-20 10:06:22] Keycloak - CRITICAL: Failed password for admin from IP 192.168.10.5
-[2026-08-20 10:06:37] Postgres - INFO: Automated background backup finished successfully
-[2026-08-20 10:07:08] Keycloak - INFO: User raj successfully authenticated via OIDC provider
-[2026-08-20 10:07:34] Keycloak - INFO: User raj successfully authenticated via OIDC provider
-[2026-08-20 10:07:47] Auth-Service - INFO: Token verification successful for user sam
-[2026-08-20 10:08:19] Auth-Service - INFO: Token verification successful for user sam
-[2026-08-20 10:08:43] Auth-Service - INFO: Token verification successful for user sam
-[2026-08-20 10:09:26] Postgres - INFO: Database connection established successfully from application pool
-[2026-08-20 10:09:41] Keycloak - INFO: User raj successfully authenticated via OIDC provider
-[2026-08-20 10:09:49] Postgres - ERROR: Database error connection timeout during replication sweep
-[2026-08-20 10:10:20] Keycloak - CRITICAL: Failed password for root from IP 192.168.10.5
-[2026-08-20 10:10:30] Keycloak - CRITICAL: Failed password for admin from IP 192.168.10.5
-[2026-08-20 10:10:40] Keycloak - WARN: Unauthorized access attempt by malicious_actor
-[2026-08-20 10:10:50] Postgres - ERROR: Database error connection pool exhausted
-[2026-08-20 10:11:00] Keycloak - CRITICAL: Failed password for admin from IP 192.168.10.5
-[2026-08-20 10:11:05] Keycloak - CRITICAL: Failed password for admin from IP 192.168.10.5
-[2026-08-20 10:11:10] Keycloak - CRITICAL: Failed password for admin from IP 192.168.10.5
+[2026-08-20 10:00:00] Keycloak - INFO: System boot complete.
+[2026-08-20 10:00:15] Postgres - INFO: Database system is ready to accept connections on port 5432
+[2026-08-20 10:00:30] Auth-Service - INFO: Token verification secret key rotated successfully
+[2026-08-20 10:00:45] Keycloak - INFO: Scheduled backup cron-job initialized for security vaults
 
+[2026-08-20 10:01:00] Keycloak - CRITICAL: Failed password for admin from IP 192.168.10.5
+[2026-08-20 10:01:05] Postgres - INFO: Connection received from application pool controller
+[2026-08-20 10:01:10] Keycloak - CRITICAL: Failed password for admin from IP 192.168.10.5
+[2026-08-20 10:01:12] Auth-Service - INFO: Session health-check complete for 14 active users
+[2026-08-20 10:01:20] Keycloak - CRITICAL: Failed password for admin from IP 192.168.10.5
+[2026-08-20 10:01:30] Keycloak - CRITICAL: Failed password for admin from IP 192.168.10.5
+[2026-08-20 10:01:35] Postgres - INFO: Autovacuum worker started for schema compliance
+[2026-08-20 10:01:40] Keycloak - CRITICAL: Failed password for admin from IP 192.168.10.5
+[2026-08-20 10:01:50] Keycloak - CRITICAL: Failed password for admin from IP 192.168.10.5
+[2026-08-20 10:01:55] Auth-Service - INFO: OIDC token handshake successful for user zainab
+[2026-08-20 10:02:00] Keycloak - CRITICAL: Failed password for admin from IP 192.168.10.5
+
+[2026-08-20 10:03:00] Keycloak - INFO: User sam successfully authenticated via active directory
+[2026-08-20 10:04:15] Postgres - INFO: Temporary temporary buffer spill cleared safely
+[2026-08-20 10:05:00] Keycloak - WARN: Unauthorized access attempt by user guest on endpoint /api/v1/admin
+[2026-08-20 10:06:40] Auth-Service - INFO: API Gateway routes reloaded for endpoint discovery
+[2026-08-20 10:08:12] Keycloak - INFO: Session closed gracefully for user alina from IP 192.168.1.45
+
+[2026-08-20 10:10:00] Keycloak - CRITICAL: Failed password for root from IP 10.0.0.99
+[2026-08-20 10:10:05] Postgres - INFO: Statement cache optimized for analytics sweep
+[2026-08-20 10:10:10] Keycloak - CRITICAL: Failed password for root from IP 10.0.0.99
+[2026-08-20 10:10:20] Keycloak - CRITICAL: Failed password for root from IP 10.0.0.99
+[2026-08-20 10:10:22] Auth-Service - INFO: Token verification successful for user maria
+[2026-08-20 10:10:30] Keycloak - CRITICAL: Failed password for root from IP 10.0.0.99
+[2026-08-20 10:10:40] Keycloak - CRITICAL: Failed password for root from IP 10.0.0.99
+
+[2026-08-20 10:12:15] Postgres - INFO: Database connection established successfully from fallback node
+[2026-08-20 10:13:50] Keycloak - INFO: Session opened for user raj from hardware token
+[2026-08-20 10:15:00] Postgres - INFO: Automated background backup finished successfully
+[2026-08-20 10:17:34] Auth-Service - INFO: JWT replication complete across edge caches
+
+[2026-08-20 10:20:00] Keycloak - CRITICAL: Failed password for user1 from IP 172.16.1.5
+[2026-08-20 10:20:05] Postgres - INFO: Replication stream catching up from main master node
+[2026-08-20 10:20:10] Keycloak - CRITICAL: Failed password for user1 from IP 172.16.1.5
+[2026-08-20 10:20:20] Keycloak - CRITICAL: Failed password for user1 from IP 172.16.1.5
+[2026-08-20 10:20:25] Auth-Service - INFO: Clean logout recorded for device ID hx-8812
+[2026-08-20 10:20:30] Keycloak - CRITICAL: Failed password for user1 from IP 172.16.1.5
+[2026-08-20 10:20:40] Keycloak - CRITICAL: Failed password for user1 from IP 172.16.1.5
+[2026-08-20 10:20:50] Keycloak - CRITICAL: Failed password for user1 from IP 172.16.1.5
+
+[2026-08-20 10:22:00] Keycloak - INFO: Periodic session cleanup finished, removed 0 active items
+[2026-08-20 10:25:00] Postgres - INFO: Server idle maintenance routine triggered
 
