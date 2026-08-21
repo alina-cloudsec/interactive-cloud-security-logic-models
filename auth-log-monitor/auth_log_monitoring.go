@@ -14,21 +14,12 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-/*
-	Yeh struct saare counters ko ek box mein rakhta hai.
-	Isse function ke andar-bahar counters ko le jaana aasan ho jata hai.
-*/
 type ThreatCounts struct {
 	FailedPassword     int
 	UnauthorizedAccess int
 	PortScan           int
 }
 
-/*
-	Yeh struct config.json file ki shape batata hai. Jab hum JSON file
-	padhte hain, Go usay is struct ke andar fit kar deta hai, taake
-	hum "config.BlockThreshold" jaisa likh kar values use kar sakein.
-*/
 type Config struct {
 	LogFilePath              string `json:"log_file_path"`
 	DatabaseName              string `json:"database_name"`
@@ -37,26 +28,12 @@ type Config struct {
 	MaxRecordsBeforeCleanup   int    `json:"max_records_before_cleanup"`
 }
 
-/*
-	Yeh ek regex (regular expression) hai. Regex ek pattern hai jo
-	text ke andar se specific shape ki cheez dhoondta hai. Yahan hum
-	sirf "X.X.X.X" shape ke IP address ko dhoond rahe hain, chahe
-	woh line mein kahin bhi ho, aakhir mein ho ya beech mein.
-	Isse purana masla theek ho gaya jahan hum sirf line ka aakhri
-	word utha lete the, chahe woh IP ho ya na ho.
-*/
 var ipRegex = regexp.MustCompile(`\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b`)
 
 func main() {
 	fmt.Println("Starting Cloud Server Log Monitoring")
 	fmt.Println()
 
-	/*
-		Yeh config.json file se saari settings load karta hai.
-		Ab agar kal humein threshold 7 se 10 karna ho, humein code
-		dobara compile nahi karna, bas config.json mein number badalna
-		hai.
-	*/
 	config, err := loadConfig("config.json")
 	if err != nil {
 		fmt.Println("Error loading config.json:", err)
@@ -75,7 +52,7 @@ func main() {
 	}
 	defer logFile.Close()
 
-	reportFile, err := os.Create("security_report.txt")
+	reportFile, err := os.Create("output.txt")
 	if err != nil {
 		fmt.Println("Error: could not create report file")
 		return
@@ -118,26 +95,10 @@ func main() {
 	firstThreatTime := ""
 	lastThreatTime := ""
 
-	/*
-		Yeh map har IP ke against uski attack timestamps ki list
-		rakhta hai. Jaise: "192.168.10.5" -> [10:02:29, 10:06:22, 10:10:30]
-		Isse hum check kar sakte hain ke kitne attacks ek chhoti
-		time window (jaise 3 minute) ke andar hue, sirf total count
-		nahi, kyunki poore hafte mein failele hui 7 koshishein
-		brute-force nahi hoti, lekin 3 minute mein 7 koshishein hoti hain.
-	*/
 	ipAttackTimes := make(map[string][]time.Time)
 	blockedIPs := make(map[string]bool)
+	suspiciousIPs := make(map[string]bool)
 
-	/*
-		Yeh live tail ka hissa hai. Hum bufio.Reader use karte hain,
-		normal Scanner ki jagah, kyunki Scanner sirf ek baar file
-		padh kar ruk jata hai. Reader ko hum khud control karte hain:
-		agar file ka end aa jaye (EOF), hum thoda ruk jate hain
-		(time.Sleep) aur dobara try karte hain, taake agar file mein
-		nayi line aaye (jaise real server mein hota hai), hum usay
-		fauran pakad lein.
-	*/
 	reader := bufio.NewReader(logFile)
 	linesProcessedInThisRun := 0
 
@@ -167,21 +128,10 @@ func main() {
 				saveThreatToDatabase(db, threatType, extractedIP, timestamp)
 				cleanupOldRecords(db, config.MaxRecordsBeforeCleanup)
 
-				/*
-					Agar IP khali hai (jaise "guest" wala attempt jisme
-					koi IP nahi tha), hum usay tracking mein bilkul
-					shamil nahi karte. Warna khali string "" khud
-					ek "IP" ki tarah track ho kar block ho sakti thi,
-					jo galat hota.
-				*/
 				if extractedIP != "" {
 					eventTime, parseErr := time.Parse("2006-01-02 15:04:05", timestamp)
 					if parseErr == nil {
-						/*
-							Yeh purani timestamps ko list se nikalta hai jo
-							ab time window se bahar ho chuki hain, phir
-							nayi timestamp add karta hai.
-						*/
+						
 						windowDuration := time.Duration(config.BlockTimeWindowMinutes) * time.Minute
 						validTimes := []time.Time{}
 						for _, t := range ipAttackTimes[extractedIP] {
@@ -192,11 +142,28 @@ func main() {
 						validTimes = append(validTimes, eventTime)
 						ipAttackTimes[extractedIP] = validTimes
 
+						/*
+							Yeh do-level system hai, real security tools jaisa:
+							- 5 attempts pe: IP ko "suspicious" list mein daalo,
+							  sirf warning do, abhi block mat karo.
+							- 7 ya usse zyada pe: ab pakka block kar do.
+							Isse hum sirf ek sudden switch (block/no-block) ki
+							jagah, dheere dheere zyada strict nazar rakhte hain,
+							bilkul jaise real IDS/SIEM tools karte hain.
+						*/
 						if len(validTimes) >= config.BlockThreshold && !blockedIPs[extractedIP] {
 							blockedIPs[extractedIP] = true
 							fmt.Printf("\a BLOCKED: %s hit %d attempts within %d minutes — auto-blocked\n",
 								extractedIP, len(validTimes), config.BlockTimeWindowMinutes)
 							blocklistWriter.WriteString(extractedIP + "\n")
+							reportWriter.WriteString(fmt.Sprintf("BLOCKED: %s — %d attempts in %d minutes\n",
+								extractedIP, len(validTimes), config.BlockTimeWindowMinutes))
+						} else if len(validTimes) >= 5 && !suspiciousIPs[extractedIP] {
+							suspiciousIPs[extractedIP] = true
+							fmt.Printf("\a SUSPICIOUS: %s hit %d attempts — added to watch list\n",
+								extractedIP, len(validTimes))
+							reportWriter.WriteString(fmt.Sprintf("SUSPICIOUS: %s — %d attempts, now being watched closely\n",
+								extractedIP, len(validTimes)))
 						}
 					}
 				}
@@ -205,10 +172,6 @@ func main() {
 
 		if err != nil {
 			if err == io.EOF {
-				// File ka end aa gaya hai. Demo ke liye hum yahan ruk
-				// jate hain. Agar yeh ek asli live server hota, hum
-				// "time.Sleep(2 * time.Second)" laga kar loop jari
-				// rakhte, taake nayi lines ka wait karein.
 				break
 			}
 			fmt.Println("Error reading file:", err)
@@ -243,12 +206,6 @@ func main() {
 	fmt.Println("All threats also saved to", config.DatabaseName)
 }
 
-/*
-	Yeh function config.json ko padh kar Config struct mein convert
-	karta hai. json.Unmarshal JSON text ko struct ke fields mein
-	fit karta hai, un naamon ke hisaab se jo humne struct ke upar
-	`json:"..."` mein likhe hain.
-*/
 func loadConfig(path string) (Config, error) {
 	var config Config
 	fileData, err := os.ReadFile(path)
@@ -259,20 +216,7 @@ func loadConfig(path string) (Config, error) {
 	return config, err
 }
 
-/*
-	Yeh function ek line check karta hai aur batata hai ke threat
-	hai ya nahi. Humne patterns ko pehle se zyada precise banaya hai
-	(sirf "Port scan" ki jagah poora "Port scan detected" match
-	karna), taake agar koi normal line mein waise hi "port scan"
-	ka zikar ho (jaise koi engineer likhe "running a port scan
-	test"), hum use galti se attack na samajh baithein.
-*/
 func processLine(logLine string, counts *ThreatCounts) (bool, string, string) {
-	/*
-		Naye log format mein timestamp square brackets ke andar hai:
-		"[2026-08-20 10:00:22] Keycloak - WARN: ..."
-		Hum yahan se sirf date aur time nikalte hain, brackets hata kar.
-	*/
 	timestamp := ""
 	if strings.HasPrefix(logLine, "[") {
 		endBracket := strings.Index(logLine, "]")
@@ -299,12 +243,6 @@ func processLine(logLine string, counts *ThreatCounts) (bool, string, string) {
 	return false, "", timestamp
 }
 
-/*
-	Yeh function regex use karke line ke andar se ek valid IP address
-	dhoondta hai, chahe woh kahin bhi ho. Agar line mein koi IP nahi
-	hai (jaise guest access wali line), yeh khali string "" deta hai,
-	aur main loop is khali string ko IP ki tarah track nahi karta.
-*/
 func extractIP(logLine string) string {
 	match := ipRegex.FindString(logLine)
 	return match
@@ -318,14 +256,6 @@ func saveThreatToDatabase(db *sql.DB, threatType string, ip string, timestamp st
 	}
 }
 
-/*
-	Yeh function check karta hai ke database mein kitni rows hain.
-	Agar rows ki ginti humari config wali limit (jaise 100) se zyada
-	ho jaye, yeh sabse purani rows delete kar deta hai, aur sirf
-	sabse nayi (limit jitni) rows rakhta hai. Isse database file
-	hamesha ek reasonable size mein rehti hai, chahe program kitni
-	der bhi chale.
-*/
 func cleanupOldRecords(db *sql.DB, maxRecords int) {
 	cleanupSQL := `
 	DELETE FROM threats WHERE id NOT IN (
