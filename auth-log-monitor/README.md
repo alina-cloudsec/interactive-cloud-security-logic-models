@@ -5,7 +5,7 @@
 This is a Go program that reads a file full of security logs and
 checks every line for signs of an attack, like someone trying wrong
 passwords over and over. If it finds enough attempts from the same
-IP address in a short time, it marks that IP as blocked. It also
+IP address in a short time, it flags the IP as suspicious on 5 attempts and completely blocks it if it crosses 7 attempts within a 3-minute rolling window. It also
 saves every threat it finds into a small database, writes a full
 report to a text file, and keeps that database from growing forever
 by deleting old records automatically.
@@ -131,9 +131,9 @@ time has passed.
 ```
  
 7. **Check the results.** Three new files appear:
-   - `security_report.txt` — the full written report
+   - `output.txt` — the full written report
    - `blocked_ips.txt` — any IP addresses that got auto-blocked
-   - `threats.db` — a small database with every threat saved in it
+   - `threats.db` — a small dattabase with every threat saved in it
 
 ---
 
@@ -171,29 +171,74 @@ project.
 ---
 
 ## Code Explained, Block by Block
- 
-**This part loads all the settings from `config.json`, instead of
-having them hard-coded in the program.**
+
+**This part lets Go know which external and standard tool libraries this specific program needs to work.**
+```go
+import (
+	"bufio"
+	"database/sql"
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+	"regexp"
+	"strings"
+	"time"
+
+	_ "modernc.org/sqlite"
+)
+```
+This imports standard tools for reading files, handling text strings, parsing timestamps, and setting up the database. The underscore before the SQLite driver tells Go to initialize the database driver in the background, so the program can talk to database files without using the driver package names directly in the code.
+
+**This part sets up the structured boxes, called structs, to neatly organize our logs data and configuration parameters.**
+```go
+type ThreatCounts struct {
+	FailedPassword     int
+	UnauthorizedAccess int
+	PortScan           int
+}
+
+type Config struct {
+	LogFilePath              string `json:"log_file_path"`
+	DatabaseName              string `json:"database_name"`
+	BlockThreshold            int    `json:"block_threshold"`
+	BlockTimeWindowMinutes    int    `json:"block_time_window_minutes"`
+	MaxRecordsBeforeCleanup   int    `json:"max_records_before_cleanup"`
+}
+```
+These structures act like storage boxes. The first one groups all our global incident metrics together in one place. The second one maps directly with the settings inside our JSON file, allowing the program to read configuration values and map them into variable tokens automatically.
+
+**This part loads all the settings from `config.json`, instead of having them hard-coded in the program.**
 ```go
 config, err := loadConfig("config.json")
 ```
-This reads the settings file and turns it into something the program
-can actually use, like the block threshold and file paths. If
-someone wants to change the threshold from 7 to 10 later, they just
-edit the JSON file. No code changes needed.
- 
+This reads the settings file and turns it into something the program can actually use, like the block threshold and file paths. If someone wants to change the threshold from 7 to 10 later, they just edit the JSON file. No code changes needed.
+
+**This part creates the output text report sheets and hooks up a fast database connection engine.**
+```go
+reportFile, err := os.Create("security_report.txt")
+...
+db, err := sql.Open("sqlite", config.DatabaseName)
+...
+createTableSQL := `CREATE TABLE IF NOT EXISTS threats (...)`
+```
+This sets up our output reporting files right when the program starts. It also spins up a localized SQLite relational database connector and runs a database layout command. If the table layout doesn't exist yet, it creates it dynamically without erasing any old stored data rows.
+
+**This part initializes our in-memory hash maps to keep track of system security states dynamically.**
+```go
+ipAttackTimes := make(map[string][]time.Time)
+blockedIPs := make(map[string]bool)
+suspiciousIPs := make(map[string]bool)
+```
+These initialize internal memory map tracking cards. The first one maps an IP string directly to an expandable list of timestamps, which lets us record multiple events. The other two act as true/false status tracking lists so that the program remembers who is already flagged or blocked, avoiding duplicate spam alerts.
+
 **This part finds IP addresses using a pattern, not guesswork.**
 ```go
 var ipRegex = regexp.MustCompile(`\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b`)
 ```
-This is called a regular expression. It searches a line of text for
-anything shaped like an IP address (four numbers separated by dots),
-no matter where it appears in the line. Earlier, I was just grabbing
-the last word in the line and assuming it was an IP, which broke on
-lines that didn't have one at all.
- 
-**This part reads the log file one line at a time, in a way that
-could keep watching for new lines.**
+This is called a regular expression. It searches a line of text for anything shaped like an IP address (four numbers separated by dots), no matter where it appears in the line. Earlier, I was just grabbing the last word in the line and assuming it was an IP, which broke on lines that didn't have one at all.
+
+**This part reads the log file one line at a time, in a way that could keep watching for new lines.**
 ```go
 reader := bufio.NewReader(logFile)
 for {
@@ -204,36 +249,32 @@ for {
     }
 }
 ```
-Instead of reading the whole file once and stopping, this reads line
-by line and checks for the end of the file. In a real, always-running
-version, instead of stopping at the end, it would just wait a couple
-of seconds and check again, so it never misses a new line being
-added. Right now it stops once it reaches the end, since this is a
-demo running on a fixed log file.
- 
-**This part checks each line and figures out what kind of threat it
-is, if any.**
+Instead of reading the whole file once and stopping, this reads line by line and checks for the end of the file. In a real, always-running version, instead of stopping at the end, it would just wait a couple of seconds and check again, so it never misses a new line being added. Right now it stops once it reaches the end, since this is a demo running on a fixed log file.
+
+**This part checks each line and figures out what kind of threat it is, if any.**
 ```go
 func processLine(logLine string, counts *ThreatCounts) (bool, string, string) {
 ```
-The `*ThreatCounts` here is called a pointer. Instead of handing this
-function a copy of my counters, I hand it the real counters directly.
-So when this function adds one to `FailedPassword`, it's updating the
-actual, original counter, not a copy that disappears afterward.
- 
-**This part only counts something as a threat if the wording is
-specific enough.**
+The `*ThreatCounts` here is called a pointer. Instead of handing this function a copy of my counters, I hand it the real counters directly. So when this function adds one to `FailedPassword`, it's updating the actual, original counter, not a copy that disappears afterward.
+
+**This part handles slicing and peeling off the square brackets from timestamps safely.**
+```go
+if strings.HasPrefix(logLine, "[") {
+	endBracket := strings.Index(logLine, "]")
+	if endBracket != -1 {
+		timestamp = logLine[1:endBracket]
+	}
+}
+```
+This looks at the start of a log entry to find where the bracket metadata begins and ends. It safely extracts just the raw time string inside without any brackets, passing a clean text date down to the program so the time calculation system doesn't encounter syntax crashes.
+
+**This part only counts something as a threat if the wording is specific enough.**
 ```go
 if strings.Contains(logLine, "CRITICAL") && strings.Contains(logLine, "Failed password") {
 ```
-Earlier, I was just checking for words like "Port scan" anywhere in a
-line. That's risky, because a totally normal log line, like someone
-mentioning they're testing something, could accidentally get flagged.
-Checking for the specific level (`CRITICAL`) together with the exact
-phrase makes this much less likely to trigger by mistake.
- 
-**This part tracks how many times each IP attacked, but only within
-a short time window.**
+Earlier, I was just checking for words like "Port scan" anywhere in a line. That's risky, because a totally normal log line, like someone mentioning they're testing something, could accidentally get flagged. Checking for the specific level (`CRITICAL`) together with the exact phrase makes this much less likely to trigger by mistake.
+
+**This part tracks how many times each IP attacked, but only within a short time window.**
 ```go
 windowDuration := time.Duration(config.BlockTimeWindowMinutes) * time.Minute
 validTimes := []time.Time{}
@@ -243,13 +284,8 @@ for _, t := range ipAttackTimes[extractedIP] {
     }
 }
 ```
-This keeps a list of attack times for each IP. Every time a new
-attack comes in, it throws out any old attack times that happened
-too long ago (outside the time window), then adds the new one. This
-matters because someone failing a password once today and once next
-week isn't really a brute force attack. Someone failing it seven
-times in three minutes clearly is.
- 
+This keeps a list of attack times for each IP. Every time a new attack comes in, it throws out any old attack times that happened too long ago (outside the time window), then adds the new one. This matters because someone failing a password once today and once next week isn't really a brute force attack. Someone failing it seven times in three minutes clearly is.
+
 **This part has two warning levels, not just one.**
 ```go
 if len(validTimes) >= config.BlockThreshold && !blockedIPs[extractedIP] {
@@ -258,33 +294,23 @@ if len(validTimes) >= config.BlockThreshold && !blockedIPs[extractedIP] {
     // just watch it closely, don't block yet
 }
 ```
-Instead of only having one threshold that jumps straight to blocking,
-this adds an earlier stage. At 5 attempts, the IP gets marked as
-"suspicious" and a warning is printed, but nothing is blocked yet. It
-only actually gets blocked once it crosses the real threshold (7).
-This is closer to how real security tools behave, giving a chance to
-notice a pattern early, instead of only reacting once it's already a
-confirmed attack.
- 
+Instead of only having one threshold that jumps straight to blocking, this adds an earlier stage. At 5 attempts, the IP gets marked as "suspicious" and a warning is printed, but nothing is blocked yet. It only actually gets blocked once it crosses the real threshold (7). This is closer to how real security tools behave, giving a chance to notice a pattern early, instead of only reacting once it's already a confirmed attack.
+
 **This part skips tracking if there's no IP at all.**
 ```go
 if extractedIP != "" {
 ```
-Some log lines, like a blocked guest attempt, don't have an IP
-address in them. Without this check, an empty result would have been
-treated like a real IP and could have ended up wrongly blocked.
- 
+Some log lines, like a blocked guest attempt, don't have an IP address in them. Without this check, an empty result would have been treated like a real IP and could have ended up wrongly blocked.
+
 **This part saves every threat into a small database file.**
 ```go
 func saveThreatToDatabase(db *sql.DB, threatType string, ip string, timestamp string) {
     insertSQL := `INSERT INTO threats (threat_type, ip_address, event_time) VALUES (?, ?, ?);`
     db.Exec(insertSQL, threatType, ip, timestamp)
 }
-``` 
-This is a normal SQL command, which just means it's a standard way to
-talk to a database. It adds one new row every time a threat is
-found, so nothing gets lost, and it can be looked up again later.
- 
+```
+This is a normal SQL command, which just means it's a standard way to talk to a database. It adds one new row every time a threat is found, so nothing gets lost, and it can be looked up again later.
+
 **This part keeps the database from growing forever.**
 ```go
 func cleanupOldRecords(db *sql.DB, maxRecords int) {
@@ -294,10 +320,8 @@ func cleanupOldRecords(db *sql.DB, maxRecords int) {
     db.Exec(cleanupSQL, maxRecords)
 }
 ```
-Once the number of saved threats goes past the limit set in
-`config.json`, this deletes the oldest ones and keeps only the most
-recent batch. Without this, the database file would just keep
-growing bigger, forever, the longer the program runs.
+Once the number of saved threats goes past the limit set in `config.json`, this deletes the oldest ones and keeps only the most recent batch. Without this, the database file would just keep growing bigger, forever, the longer the program runs.
+
  
 ---
  
