@@ -78,5 +78,5 @@ Playground. I will upload them here over the next few days.
 
 ---
 ```bash
-> 📌 **Note:** Honestly, I didn't know that Go has such strict rules for curly brackets `{`. Coming from a C and C++ background, I am used to writing code in that format, so I didn't pay much attention to it at first and just wrote it that way. But when compiling, I got syntax errors, which led me to research and discover Go's strict styling rules. Over the next one or two days, I will be fixing the formatting across all my codes.
+>  **Note:** Honestly, I didn't know that Go has such strict rules for curly brackets `{`. Coming from a C and C++ background, I am used to writing code in that format, so I didn't pay much attention to it at first and just wrote it that way. But when compiling, I got syntax errors, which led me to research and discover Go's strict styling rules. Over the next one or two days, I will be fixing the formatting across all my codes.
 
