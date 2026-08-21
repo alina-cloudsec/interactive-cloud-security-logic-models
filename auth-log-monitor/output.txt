@@ -1,0 +1,17 @@
+THREAT: [2026-08-20 10:00:22] Keycloak - WARN: Unauthorized access attempt by user guest on endpoint /api/v1/admin/settings
+THREAT: [2026-08-20 10:02:29] Keycloak - CRITICAL: Failed password for admin from IP 192.168.10.5
+THREAT: [2026-08-20 10:03:08] Keycloak - WARN: Unauthorized access attempt by user guest on endpoint /api/v1/admin/settings
+THREAT: [2026-08-20 10:06:22] Keycloak - CRITICAL: Failed password for admin from IP 192.168.10.5
+THREAT: [2026-08-20 10:10:20] Keycloak - CRITICAL: Failed password for root from IP 192.168.10.5
+THREAT: [2026-08-20 10:10:30] Keycloak - CRITICAL: Failed password for admin from IP 192.168.10.5
+THREAT: [2026-08-20 10:10:40] Keycloak - WARN: Unauthorized access attempt by malicious_actor
+THREAT: [2026-08-20 10:11:00] Keycloak - CRITICAL: Failed password for admin from IP 192.168.10.5
+THREAT: [2026-08-20 10:11:05] Keycloak - CRITICAL: Failed password for admin from IP 192.168.10.5
+THREAT: [2026-08-20 10:11:10] Keycloak - CRITICAL: Failed password for admin from IP 192.168.10.5
+
+			---------- Monitoring Summary ----------
+Total log lines read: 33
+Failed password attempts: 7
+Unauthorized access attempts: 3
+Port scans detected: 0
+Total high-risk alerts raised: 10

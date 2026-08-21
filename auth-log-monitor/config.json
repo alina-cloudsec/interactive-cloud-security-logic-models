@@ -1,0 +1,7 @@
+{
+  "log_file_path": "log.txt",
+  "database_name": "threats.db",
+  "block_threshold": 7,
+  "block_time_window_minutes": 3,
+  "max_records_before_cleanup": 100
+}
