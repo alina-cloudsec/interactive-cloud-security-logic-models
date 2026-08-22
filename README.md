@@ -10,7 +10,7 @@ a beginner. But every program here does something real when you run it.
 
 ## What is inside
 
-- **auth log scanner** > Reads a list of system logs dynamically. It uses advanced rolling time-windows to flag suspicious IPs at 5 attempts and automatically enforces structural hard blocks at 7 attempts, saving historical incidents directly into an SQLite database with auto-cleanup automation.
+- **auth log scanner** > Reads a list of system logs and checks each one for failed logins. If the same IP fails 5 times within a few minutes, it gets flagged as suspicious. At 7 times, it gets blocked. Every threat gets saved into a small SQLite database, which also cleans up old records automatically so it doesn't grow forever.
 - **buffer size guard** > Checks if user input is too big before
   letting it in. This stops input from going past the limit it should
   have.
@@ -23,8 +23,7 @@ a beginner. But every program here does something real when you run it.
 - **kubernetes access simulation** > A small copy of how role based
   access works. Different users get different levels of access, like
   in real Kubernetes systems.
-- **port firewall** > Reads network traffic connection logs. It uses rolling 2-minute time windows to put noisy IPs on a suspicious watch list at 2 attempts, blocks them completely at 4 attempts,   and alerts you if someone is scanning different ports, all while saving data in an SQLite database.
-
+- **port firewall** > Reads network connection logs. If an IP hits a dangerous port repeatedly within a 2-minute window, it gets put on a watch list at 2 attempts and fully blocked at 4. It also catches port scanning, when an IP tries several different ports quickly. Everything gets saved into an SQLite database too.
 ---
 
 ## How this relates to cybersecurity
@@ -32,7 +31,8 @@ a beginner. But every program here does something real when you run it.
 Each program here stops a real kind of attack that hackers aactually
 use. Here is how each one connects:
 
-- **auth log scanner** > Hackers often execute brute-force attacks by guessing passwords rapidly. My program specifically analyzes these logs using sliding time-windows, evaluating if multiple failures happen within a 3-minute burst. This allows the system to intelligently differentiate between a real distributed attack and an honest user making a single mistyped mistake.
+- **auth log scanner** > Hackers often try many passwords quickly on the same account, called a brute-force attack. My program checks if several failed logins happen from the same IP in a short time window, so it can tell the difference between a real attack and someone who just mistyped their password once.
+  
 - **buffer size guard** > Hackers sometimes send input that is much
   bigger than a program expects, on purpose. If the program does not
   check the size first, that extra data can spill into memory it
@@ -63,9 +63,8 @@ use. Here is how each one connects:
   allowed to have, so even if one part is broken into, the damage stays
   limited.
 
-- **port firewall** > Before attacking a system, hackers scan it to find open ports, which are like open doors into a house. My program checks incoming network logs inside a 2-minute rolling window. If an IP hits forbidden ports repeatedly or tries multiple different ports quickly, it spots the attack footprint immediately and shuts the door before they can break in.
-
-
+- **port firewall** > Before attacking a system, hackers usually scan it first to find open ports, like checking which doors are unlocked. My program watches for an IP hitting dangerous ports repeatedly, or trying many different ports quickly, and reacts before it becomes a real problem.
+  
   ---
 
 ## Status
