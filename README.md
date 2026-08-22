@@ -23,8 +23,7 @@ a beginner. But every program here does something real when you run it.
 - **kubernetes access simulation** > A small copy of how role based
   access works. Different users get different levels of access, like
   in real Kubernetes systems.
-- **port firewall** > A simple firewall. It allows or blocks traffic
-  based on rules I set.
+- **port firewall** > Reads network traffic connection logs. It uses rolling 2-minute time windows to put noisy IPs on a suspicious watch list at 2 attempts, blocks them completely at 4 attempts,   and alerts you if someone is scanning different ports, all while saving data in an SQLite database.
 
 ---
 
@@ -64,10 +63,8 @@ use. Here is how each one connects:
   allowed to have, so even if one part is broken into, the damage stays
   limited.
 
-- **port firewall** > Before attacking a system, hackers often scan it
-  to find open ports, which are like open doors into the system. My
-  program only allows traffic through ports that are approved, and
-  blocks every other port, so there are fewer doors left open.
+- **port firewall** > Before attacking a system, hackers scan it to find open ports, which are like open doors into a house. My program checks incoming network logs inside a 2-minute rolling window. If an IP hits forbidden ports repeatedly or tries multiple different ports quickly, it spots the attack footprint immediately and shuts the door before they can break in.
+
 
   ---
 
@@ -78,5 +75,8 @@ Playground. I will upload them here over the next few days.
 
 ---
 ```bash
->  **Note:** Honestly, I didn't know that Go has such strict rules for curly brackets `{`. Coming from a C and C++ background, I am used to writing code in that format, so I didn't pay much attention to it at first and just wrote it that way. But when compiling, I got syntax errors, which led me to research and discover Go's strict styling rules. Over the next one or two days, I will be fixing the formatting across all my codes.
+>  **Note:** Honestly, I didn't know that Go has such strict rules for curly brackets `{`. Coming from a C and C++ background,
+ I am used to writing code in that format, so I didn't pay much attention to it at first and just wrote it that way. But when
+ compiling, I got syntax errors, which led me to research and discover Go's strict styling rules. Over the next one or two
+ days, I will be fixing the formatting across all my codes.
 
