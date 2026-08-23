@@ -1,5 +1,4 @@
 package main
-
 import (
 	"bufio"
 	"database/sql"
@@ -90,6 +89,30 @@ func main() {
 		return
 	}
 
+	createBlockedTableSQL := `
+CREATE TABLE IF NOT EXISTS blocked_ips (
+    ip_address TEXT PRIMARY KEY,
+    attempts_count INTEGER,
+    blocked_at TEXT
+);`
+_, err = db.Exec(createBlockedTableSQL)
+if err != nil {
+    fmt.Println("Error creating blocked_ips table:", err)
+    return
+}
+
+createSuspiciousTableSQL := `
+CREATE TABLE IF NOT EXISTS suspicious_ips (
+    ip_address TEXT PRIMARY KEY,
+    attempts_count INTEGER,
+    flagged_at TEXT
+);`
+_, err = db.Exec(createSuspiciousTableSQL)
+if err != nil {
+    fmt.Println("Error creating suspicious_ips table:", err)
+    return
+}
+
 	counts := ThreatCounts{}
 	totalLinesRead := 0
 	firstThreatTime := ""
@@ -142,15 +165,6 @@ func main() {
 						validTimes = append(validTimes, eventTime)
 						ipAttackTimes[extractedIP] = validTimes
 
-						/*
-							Yeh do-level system hai, real security tools jaisa:
-							- 5 attempts pe: IP ko "suspicious" list mein daalo,
-							  sirf warning do, abhi block mat karo.
-							- 7 ya usse zyada pe: ab pakka block kar do.
-							Isse hum sirf ek sudden switch (block/no-block) ki
-							jagah, dheere dheere zyada strict nazar rakhte hain,
-							bilkul jaise real IDS/SIEM tools karte hain.
-						*/
 						if len(validTimes) >= config.BlockThreshold && !blockedIPs[extractedIP] {
 							blockedIPs[extractedIP] = true
 							fmt.Printf("\a BLOCKED: %s hit %d attempts within %d minutes — auto-blocked\n",
@@ -158,12 +172,20 @@ func main() {
 							blocklistWriter.WriteString(extractedIP + "\n")
 							reportWriter.WriteString(fmt.Sprintf("BLOCKED: %s — %d attempts in %d minutes\n",
 								extractedIP, len(validTimes), config.BlockTimeWindowMinutes))
+							db.Exec(
+								"INSERT OR REPLACE INTO blocked_ips (ip_address, attempts_count, blocked_at) VALUES (?, ?, ?)",
+								extractedIP, len(validTimes), timestamp,
+							)
 						} else if len(validTimes) >= 5 && !suspiciousIPs[extractedIP] {
 							suspiciousIPs[extractedIP] = true
 							fmt.Printf("\a SUSPICIOUS: %s hit %d attempts — added to watch list\n",
 								extractedIP, len(validTimes))
 							reportWriter.WriteString(fmt.Sprintf("SUSPICIOUS: %s — %d attempts, now being watched closely\n",
 								extractedIP, len(validTimes)))
+							db.Exec(
+								"INSERT OR REPLACE INTO suspicious_ips (ip_address, attempts_count, flagged_at) VALUES (?, ?, ?)",
+								extractedIP, len(validTimes), timestamp,
+							)
 						}
 					}
 				}
