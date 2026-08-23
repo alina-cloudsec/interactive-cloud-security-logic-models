@@ -1,0 +1,8 @@
+{
+  "max_input_bytes": 10,
+  "warning_after_attempts": 3,
+  "block_after_attempts": 5,
+  "log_file": "buffer-guard-log.txt",
+  "database_file": "buffer-guard-history.db",
+  "history_cleanup_after_hours": 24
+}
