@@ -1,0 +1,60 @@
+---------------------------------------
+Check time : 2026-08-23 14:22:38
+Visitor IP : 192.168.1.50
+Result     : DENIED
+Rule       : exact match: 192.168.1.50
+---------------------------------------
+Check time : 2026-08-23 14:24:10
+Visitor IP : 192.168.1.1
+Result     : ALLOWED
+Rule       : not blacklisted
+---------------------------------------
+Check time : 2026-08-23 14:24:37
+Visitor IP : 127.0.0.1
+Result     : ALLOWED
+Rule       : not blacklisted
+---------------------------------------
+Check time : 2026-08-23 14:25:04
+Visitor IP : 8.8.8.8
+Result     : ALLOWED
+Rule       : not blacklisted
+---------------------------------------
+Check time : 2026-08-23 14:25:55
+Visitor IP : 192.168.1.50
+Result     : DENIED
+Rule       : exact match: 192.168.1.50
+---------------------------------------
+Check time : 2026-08-23 14:26:25
+Visitor IP : 127.0.0.1
+Result     : ALLOWED
+Rule       : not blacklisted
+---------------------------------------
+Check time : 2026-08-23 14:26:43
+Visitor IP : 10.0.0.99
+Result     : DENIED
+Rule       : exact match: 10.0.0.99
+---------------------------------------
+Check time : 2026-08-23 14:27:07
+Visitor IP : 172.16.0.4
+Result     : DENIED
+Rule       : exact match: 172.16.0.4
+---------------------------------------
+Check time : 2026-08-23 14:27:34
+Visitor IP : 192.168.1.50
+Result     : DENIED
+Rule       : exact match: 192.168.1.50
+---------------------------------------
+Check time : 2026-08-23 14:28:13
+Visitor IP : 192.168.1.50
+Result     : DENIED
+Rule       : exact match: 192.168.1.50
+---------------------------------------
+Check time : 2026-08-23 14:34:53
+Visitor IP : 172.16.0.4
+Result     : DENIED
+Rule       : exact match: 172.16.0.4
+---------------------------------------
+Check time : 2026-08-23 14:35:32
+Visitor IP : 10.0.0.99
+Result     : DENIED
+Rule       : exact match: 10.0.0.99
