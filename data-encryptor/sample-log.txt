@@ -1,0 +1,6 @@
+[2026-08-23 09:12:01] INFO: user alina-security logged in successfully
+[2026-08-23 09:12:04] DEBUG: connecting with api_key=sk_live_51Hc9J2example
+[2026-08-23 09:13:10] WARN: retrying request with token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+[2026-08-23 09:14:22] INFO: database connection using password=SuperSecret123
+[2026-08-23 09:15:00] INFO: request completed in 220ms
+[2026-08-23 09:16:45] DEBUG: refreshing secret=my-rotating-secret-value

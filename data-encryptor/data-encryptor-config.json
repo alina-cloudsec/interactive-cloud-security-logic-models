@@ -1,0 +1,11 @@
+{
+  "mask_output": "*********",
+  "sensitive_keywords": ["password", "api_key", "token", "secret"],
+  "log_file": "data-encryptor-log.txt",
+  "output_file": "output.txt",
+  "scan_input_file": "sample-log.txt",
+  "redacted_output_file": "redacted-log.txt",
+  "database_file": "data-encryptor.db",
+  "max_records_before_cleanup": 100
+}
+
