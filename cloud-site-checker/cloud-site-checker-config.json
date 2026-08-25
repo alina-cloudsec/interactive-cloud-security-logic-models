@@ -1,0 +1,14 @@
+{
+  "urls_file": "urls.txt",
+  "timeout_seconds": 5,
+  "max_retries": 3,
+  "retry_delay_seconds": 2,
+  "healthy_status_min": 200,
+  "healthy_status_max": 299,
+  "consecutive_failures_for_alert": 3,
+  "log_file": "cloud-site-checker-log.txt",
+  "output_file": "output.txt",
+  "database_file": "cloud-site-checker.db",
+  "max_records_before_cleanup": 100
+}
+

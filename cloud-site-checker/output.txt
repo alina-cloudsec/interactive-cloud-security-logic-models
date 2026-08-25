@@ -1,0 +1,84 @@
+---------------------------------------
+Check time    : 2026-08-25 13:45:51
+URL           : https://www.google.com
+Status        : HEALTHY
+Status code   : 200
+Response time : 665.1114ms
+Attempts used : 1
+---------------------------------------
+Check time    : 2026-08-25 13:45:52
+URL           : https://www.github.com
+Status        : HEALTHY
+Status code   : 200
+Response time : 756.166ms
+Attempts used : 1
+---------------------------------------
+Check time    : 2026-08-25 13:45:56
+URL           : https://thissitedoesnotexist12345.com
+Status        : DOWN
+Status code   : 0
+Response time : 3.4047ms
+Attempts used : 3
+---------------------------------------
+Check time    : 2026-08-25 13:49:09
+URL           : https://www.google.com
+Status        : HEALTHY
+Status code   : 200
+Response time : 667.4376ms
+Attempts used : 1
+---------------------------------------
+Check time    : 2026-08-25 13:49:10
+URL           : https://www.github.com
+Status        : HEALTHY
+Status code   : 200
+Response time : 597.6208ms
+Attempts used : 1
+---------------------------------------
+Check time    : 2026-08-25 13:49:14
+URL           : https://thissitedoesnotexist12345.com
+Status        : DOWN
+Status code   : 0
+Response time : 4.229ms
+Attempts used : 3
+---------------------------------------
+Check time    : 2026-08-25 13:54:30
+URL           : https://www.google.com
+Status        : HEALTHY
+Status code   : 200
+Response time : 810.5573ms
+Attempts used : 1
+---------------------------------------
+Check time    : 2026-08-25 13:54:31
+URL           : https://www.github.com
+Status        : HEALTHY
+Status code   : 200
+Response time : 998.7633ms
+Attempts used : 1
+---------------------------------------
+Check time    : 2026-08-25 13:54:35
+URL           : https://thissitedoesnotexist12345.com
+Status        : DOWN
+Status code   : 0
+Response time : 3.441ms
+Attempts used : 3
+---------------------------------------
+Check time    : 2026-08-25 13:55:35
+URL           : https://www.google.com
+Status        : HEALTHY
+Status code   : 200
+Response time : 673.973ms
+Attempts used : 1
+---------------------------------------
+Check time    : 2026-08-25 13:55:35
+URL           : https://www.github.com
+Status        : HEALTHY
+Status code   : 200
+Response time : 704.8682ms
+Attempts used : 1
+---------------------------------------
+Check time    : 2026-08-25 13:55:40
+URL           : https://thissitedoesnotexist12345.com
+Status        : DOWN
+Status code   : 0
+Response time : 3.3747ms
+Attempts used : 3
