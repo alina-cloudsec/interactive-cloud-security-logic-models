@@ -1,0 +1,47 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: staging-developer-role
+  namespace: staging
+rules:
+  - apiGroups: ["", "apps"]
+    resources: ["pods", "deployments"]
+    verbs: ["get", "list", "watch", "create", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: untrusted-agent-staging-binding
+  namespace: staging
+subjects:
+  - kind: User
+    name: untrusted-agent
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: staging-developer-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: staging-guest-role
+  namespace: staging
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: guest-test-staging-binding
+  namespace: staging
+subjects:
+  - kind: User
+    name: guest-test
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: staging-guest-role
+  apiGroup: rbac.authorization.k8s.io
