@@ -1,0 +1,16 @@
+{
+  "policies": [
+    {"role": "admin", "environment": "*", "allowed": true, "reason": "Global administrator permissions detected."},
+    {"role": "developer", "environment": "production", "allowed": false, "reason": "Policy Violation: non-admin users cannot push into production zones."},
+    {"role": "developer", "environment": "staging", "allowed": true, "reason": "Developer access permitted in staging."},
+    {"role": "guest", "environment": "*", "allowed": true, "reason": "Standard isolated low-risk token verified."}
+  ],
+  "users": [
+    {"user_name": "alina-security", "user_role": "admin", "environment": "production"},
+    {"user_name": "untrusted-agent", "user_role": "developer", "environment": "production"},
+    {"user_name": "guest-test", "user_role": "guest", "environment": "staging"}
+  ],
+  "log_file": "kubernetes-access-simulation-log.txt",
+  "output_file": "output.txt",
+  "database_file": "kubernetes-access-simulation.db"
+}
