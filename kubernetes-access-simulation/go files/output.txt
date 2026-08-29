@@ -1,0 +1,42 @@
+---------------------------------------
+Check time  : 2026-08-30 01:26:23
+User        : alina-security
+Role        : admin
+Environment : production
+Result      : ALLOWED
+Reason      : Global administrator permissions detected.
+---------------------------------------
+Check time  : 2026-08-30 01:26:23
+User        : untrusted-agent
+Role        : developer
+Environment : production
+Result      : DENIED
+Reason      : Policy Violation: non-admin users cannot push into production zones.
+---------------------------------------
+Check time  : 2026-08-30 01:26:23
+User        : guest-test
+Role        : guest
+Environment : staging
+Result      : ALLOWED
+Reason      : Standard isolated low-risk token verified.
+---------------------------------------
+Check time  : 2026-08-30 01:27:55
+User        : alina-security
+Role        : admin
+Environment : production
+Result      : ALLOWED
+Reason      : Global administrator permissions detected.
+---------------------------------------
+Check time  : 2026-08-30 01:27:55
+User        : untrusted-agent
+Role        : developer
+Environment : production
+Result      : DENIED
+Reason      : Policy Violation: non-admin users cannot push into production zones.
+---------------------------------------
+Check time  : 2026-08-30 01:27:55
+User        : guest-test
+Role        : guest
+Environment : staging
+Result      : ALLOWED
+Reason      : Standard isolated low-risk token verified.
